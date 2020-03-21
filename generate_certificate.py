@@ -11,6 +11,7 @@ import PIL.Image
 import PIL.ImageDraw
 import PIL.ImageFile
 from os import path
+import os
 import PIL.ImageFont
 import webbrowser
 import subprocess
@@ -24,10 +25,12 @@ PIL.ImageFile.LOAD_TRUNCATED_IMAGES = True
 def generate_certificate():
     def save_profile():
         nonlocal name, dob, address, city, signature
-        with open(r"C:\Users\etirf\Desktop\attestation\certificate_quick.txt", "wb") as f:
+        with open(r"certificate_quick.txt", "w+b") as g:
+            if signature == "Déjà préchargée":
+                signature = to_str[4]
             to_b64 = name + separator + dob + separator + address + separator + city + separator + signature
             to_b64 = base64.b64encode(to_b64.encode())
-            f.write(to_b64)
+            g.write(to_b64)
         subprocess.check_call(["attrib", "+H", "certificate_quick.txt"])
 
     def tick(option):
@@ -59,6 +62,7 @@ def generate_certificate():
     city = city_entry.get()
     signature = signature_entry.get()
     choice = reason_dd.get()
+
     # current date
     c_date = datetime.datetime.now()
     date_format = str(c_date.day)+"/"+str(c_date.month)+"/"+str(c_date.year)
@@ -107,12 +111,12 @@ def generate_certificate():
     new_width = coef * width
     sign = sign.resize((round(new_width), round(new_height)))
     img.paste(sign, (955, 2052), mask=sign)
-    img.save(file_name+".png")
     rgb = PIL.Image.new('RGB', img.size, (255, 255, 255))
     rgb.paste(img, mask=img.split()[3])
     rgb.save(file_name+".pdf", 'PDF', resoultion=100.0)
     rgb.save(file_name + ".pdf", "pdf")
-    if signature != "Déjà préchargée":
+    if signature != "Déjà préchargée" or to_str[0] != name:
+        os.remove(r"certificate_quick.txt")
         save_profile()
     window.destroy()
 
